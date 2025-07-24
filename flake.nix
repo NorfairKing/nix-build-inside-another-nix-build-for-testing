@@ -16,10 +16,21 @@
     in
     {
       checks.${system} = {
+        eval-bare-attr = pkgs.runCommand "nix-eval-bare-attr" { buildInputs = [ pkgs.nix ]; } ''
+          export NIX_CONFIG="experimental-features = nix-command flakes"
+          export NIX_STATE_DIR=$(mktemp -d)
+          nix eval ${./bare-attr}#example > $out
+        '';
         show-empty = pkgs.runCommand "nix-show-empty" { buildInputs = [ pkgs.nix ]; } ''
           export NIX_CONFIG="experimental-features = nix-command flakes"
           export NIX_STATE_DIR=$(mktemp -d)
           nix flake show ${./empty} > $out
+        '';
+        build-simple = pkgs.runCommand "nix-build-simple" { buildInputs = [ pkgs.nix ]; } ''
+          export NIX_CONFIG="experimental-features = nix-command flakes"
+          export NIX_STATE_DIR=$(mktemp -d)
+          export NIX_LOG_DIR=$(mktemp -d)
+          nix build ${./simple}# > $out
         '';
         pre-commit = pre-commit-hooks.lib.${system}.run {
           src = ./.;
