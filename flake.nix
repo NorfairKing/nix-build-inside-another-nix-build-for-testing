@@ -16,6 +16,11 @@
     in
     {
       checks.${system} = {
+        show = pkgs.runCommand "nix-show-example" { buildInputs = [ pkgs.nix ]; } ''
+          export NIX_CONFIG="experimental-features = nix-command flakes"
+          export NIX_STATE_DIR=$(mktemp -d)
+          nix flake show ${./example} > $out
+        '';
         pre-commit = pre-commit-hooks.lib.${system}.run {
           src = ./.;
           hooks = {
